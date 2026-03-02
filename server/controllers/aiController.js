@@ -20,41 +20,6 @@ exports.getSummary = async (req, res) => {
     }
 };
 
-exports.getQuiz = async (req, res) => {
-    try {
-        const note = await Note.findById(req.params.noteId);
-        if (!note) return res.status(404).json({ message: 'Note not found' });
-
-        const quiz = await aiService.generateQuiz(note.content);
-        const result = await AIResult.create({
-            user: req.user._id,
-            note: note._id,
-            type: 'quiz',
-            content: quiz
-        });
-        res.json(result);
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
-};
-
-exports.getPlan = async (req, res) => {
-    try {
-        const note = await Note.findById(req.params.noteId);
-        if (!note) return res.status(404).json({ message: 'Note not found' });
-
-        const plan = await aiService.generateStudyPlan(note.content);
-        const result = await AIResult.create({
-            user: req.user._id,
-            note: note._id,
-            type: 'study_plan',
-            content: plan
-        });
-        res.json(result);
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
-};
 
 exports.chat = async (req, res) => {
     const { history, message, noteId } = req.body;
@@ -84,17 +49,29 @@ exports.generateNotes = async (req, res) => {
     }
 };
 
-exports.generateQuizTopic = async (req, res) => {
+exports.processWritingTask = async (req, res) => {
+    const { taskType, content } = req.body;
+    try {
+        if (!content) return res.status(400).json({ message: 'Content is required' });
+        const response = await aiService.processWritingTask(taskType, content);
+        res.json({ response });
+    } catch (error) {
+        require('fs').appendFileSync('ai_errors.log', `${new Date().toISOString()} - ERROR in processWritingTask [${taskType}]: ${error.message}\n${error.stack}\n\n`);
+        res.status(500).json({ message: error.message });
+    }
+};
+
+exports.generateQuiz = async (req, res) => {
     const { subject, topic, count } = req.body;
     try {
-        const quiz = await aiService.generateQuizTopic(subject, topic, count || 5);
-        res.json(quiz);
+        const questions = await aiService.generateQuizTopic(subject, topic, count);
+        res.json({ questions });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
 };
 
-exports.generateStudyPlanTopic = async (req, res) => {
+exports.generateStudyPlan = async (req, res) => {
     const { examDate, subjects } = req.body;
     try {
         const plan = await aiService.generateStudyPlanTopic(examDate, subjects);
@@ -103,4 +80,26 @@ exports.generateStudyPlanTopic = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+
+exports.getQuiz = async (req, res) => {
+    try {
+        const note = await Note.findById(req.params.noteId);
+        if (!note) return res.status(404).json({ message: 'Note not found' });
+
+        const quiz = await aiService.generateQuizDocument(note.content);
+
+        // Save result
+        await AIResult.create({
+            user: req.user._id,
+            note: note._id,
+            type: 'quiz',
+            content: quiz
+        });
+
+        res.json({ content: quiz });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
 

@@ -27,17 +27,17 @@ const FeatureShortcut = ({ icon: Icon, title, description, path, color, delay, t
     return (
         <div
             onClick={() => navigate(path)}
-            className="group bg-white p-10 rounded-[3rem] border border-slate-50 hover:bg-slate-900 transition-all duration-500 shadow-sm hover:shadow-3xl hover:-translate-y-3 cursor-pointer flex flex-col h-full animate-slide-up"
+            className="group bg-white p-8 rounded-3xl border border-slate-50 hover:bg-slate-900 transition-all duration-500 shadow-sm hover:shadow-2xl hover:-translate-y-2 cursor-pointer flex flex-col h-full animate-slide-up"
             style={{ animationDelay: delay }}
         >
-            <div className={`${color} p-5 rounded-2xl w-fit mb-8 group-hover:scale-110 group-hover:rotate-6 transition-all duration-500 shadow-lg`}>
-                <Icon size={32} />
+            <div className={`${color} p-4 rounded-xl w-fit mb-6 group-hover:scale-110 group-hover:rotate-6 transition-all duration-500 shadow-md`}>
+                <Icon size={24} />
             </div>
-            <h3 className="text-2xl font-display font-black text-slate-900 mb-4 group-hover:text-white transition-colors tracking-tight uppercase">{title}</h3>
-            <p className="text-slate-400 text-sm font-medium leading-relaxed mb-10 flex-1 group-hover:text-slate-300 transition-colors uppercase tracking-wider text-[11px]">{description}</p>
-            <div className="flex items-center gap-3 text-primary-500 font-black text-[10px] uppercase tracking-[0.25em] group-hover:gap-5 transition-all">
+            <h3 className="text-xl font-display font-black text-slate-900 mb-3 group-hover:text-white transition-colors tracking-tight uppercase">{title}</h3>
+            <p className="text-slate-400 text-sm font-medium leading-relaxed mb-8 flex-1 group-hover:text-slate-300 transition-colors uppercase tracking-wider text-[10px]">{description}</p>
+            <div className="flex items-center gap-2 text-primary-500 font-black text-[9px] uppercase tracking-[0.2em] group-hover:gap-4 transition-all">
                 <span>{t('viewAll')}</span>
-                <ArrowRight size={18} />
+                <ArrowRight size={16} />
             </div>
         </div>
     );
@@ -50,8 +50,16 @@ const Dashboard = () => {
     const { t } = useLanguage();
     const navigate = useNavigate();
 
+    const [chatInput, setChatInput] = useState('');
     const [notes, setNotes] = useState([]);
     const [loading, setLoading] = useState(true);
+
+    const handleChatSubmit = (e, customPrompt = null) => {
+        if (e) e.preventDefault();
+        const prompt = customPrompt || chatInput;
+        if (!prompt.trim()) return;
+        navigate(`/chat?q=${encodeURIComponent(prompt)}`);
+    };
 
     useEffect(() => {
         const fetchNotes = async () => {
@@ -70,9 +78,9 @@ const Dashboard = () => {
     return (
         <div className="space-y-12 pb-20">
             {/* Nixtio Hero Greeting */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-12 pt-6">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-12 pt-4">
                 <div className="max-w-xl">
-                    <h1 className="text-4xl md:text-[52px] font-display font-black text-slate-900 leading-[1.1] tracking-tight">
+                    <h1 className="text-4xl md:text-5xl font-display font-black text-slate-900 leading-[1.1] tracking-tight">
                         {t('hi')} {user?.username || 'Nixtio'}, <span className="text-slate-400">{t('ready')}</span>
                     </h1>
                 </div>
@@ -80,27 +88,27 @@ const Dashboard = () => {
 
 
                 {/* Robot Illustration Placeholder */}
-                <div className="relative w-64 h-64 flex items-center justify-center">
-                    <div className="absolute inset-0 bg-primary-100 rounded-full blur-[60px] opacity-40"></div>
-                    <Bot size={180} className="text-slate-900 relative drop-shadow-2xl animate-bounce-slow" />
-                    <div className="absolute -top-4 -right-4 bg-white p-4 rounded-2xl shadow-xl border border-slate-50 animate-fade-in">
-                        <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">{t('heyThere')}</p>
-                        <p className="text-xs font-bold text-slate-900 mt-1">{t('needBoost')}</p>
+                <div className="relative w-48 h-48 flex items-center justify-center">
+                    <div className="absolute inset-0 bg-primary-100 rounded-full blur-[40px] opacity-40"></div>
+                    <Bot size={120} className="text-slate-900 relative drop-shadow-xl animate-bounce-slow" />
+                    <div className="absolute -top-2 -right-2 bg-white p-3 rounded-xl shadow-lg border border-slate-50 animate-fade-in">
+                        <p className="text-[9px] font-black uppercase tracking-widest text-slate-400">{t('heyThere')}</p>
+                        <p className="text-xs font-bold text-slate-900 mt-0.5">{t('needBoost')}</p>
                     </div>
                 </div>
 
             </div>
 
             {/* Nixtio Service Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-10">
                 <div
                     onClick={() => navigate('/notes')}
-                    className="bg-white p-10 rounded-[3rem] shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 cursor-pointer group border border-slate-50"
+                    className="bg-white p-8 rounded-3xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-500 cursor-pointer group border border-slate-50"
                 >
-                    <div className="bg-amber-100 p-4 rounded-xl w-fit mb-8 group-hover:scale-110 transition-transform shadow-lg shadow-amber-500/10">
-                        <BookOpen className="text-amber-600" size={32} />
+                    <div className="bg-amber-100 p-3 rounded-xl w-fit mb-6 group-hover:scale-110 transition-transform shadow-md">
+                        <BookOpen className="text-amber-600" size={24} />
                     </div>
-                    <p className="text-sm font-bold text-slate-900 leading-relaxed mb-6">
+                    <p className="text-sm font-bold text-slate-900 leading-relaxed mb-4">
                         {t('studyHubDesc')}
                     </p>
                     <span className="text-[10px] font-black text-slate-300 uppercase tracking-[0.2em]">{t('studyHub')}</span>
@@ -108,12 +116,12 @@ const Dashboard = () => {
 
                 <div
                     onClick={() => navigate('/chat')}
-                    className="bg-white p-10 rounded-[3rem] shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 cursor-pointer group border border-slate-50"
+                    className="bg-white p-8 rounded-3xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-500 cursor-pointer group border border-slate-50"
                 >
-                    <div className="bg-primary-100 p-4 rounded-xl w-fit mb-8 group-hover:scale-110 transition-transform shadow-lg shadow-primary-500/10">
-                        <MessageSquare className="text-primary-600" size={32} />
+                    <div className="bg-primary-100 p-3 rounded-xl w-fit mb-6 group-hover:scale-110 transition-transform shadow-md">
+                        <MessageSquare className="text-primary-600" size={24} />
                     </div>
-                    <p className="text-sm font-bold text-slate-900 leading-relaxed mb-6">
+                    <p className="text-sm font-bold text-slate-900 leading-relaxed mb-4">
                         {t('generalChatDesc')}
                     </p>
                     <span className="text-[10px] font-black text-slate-300 uppercase tracking-[0.2em]">{t('generalChat')}</span>
@@ -121,12 +129,12 @@ const Dashboard = () => {
 
                 <div
                     onClick={() => navigate('/quiz')}
-                    className="bg-white p-10 rounded-[3rem] shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 cursor-pointer group border border-slate-50"
+                    className="bg-white p-8 rounded-3xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-500 cursor-pointer group border border-slate-50"
                 >
-                    <div className="bg-emerald-100 p-4 rounded-xl w-fit mb-8 group-hover:scale-110 transition-transform shadow-lg shadow-emerald-500/10">
-                        <Zap className="text-emerald-600" size={32} />
+                    <div className="bg-emerald-100 p-3 rounded-xl w-fit mb-6 group-hover:scale-110 transition-transform shadow-md">
+                        <Zap className="text-emerald-600" size={24} />
                     </div>
-                    <p className="text-sm font-bold text-slate-900 leading-relaxed mb-6">
+                    <p className="text-sm font-bold text-slate-900 leading-relaxed mb-4">
                         {t('assessmentDesc')}
                     </p>
                     <span className="text-[10px] font-black text-slate-300 uppercase tracking-[0.2em]">{t('assessment')}</span>
@@ -146,36 +154,48 @@ const Dashboard = () => {
                 </div>
 
 
-                <div className="bg-white rounded-[3rem] p-3 pl-8 border border-slate-100 shadow-2xl flex items-center gap-6 group focus-within:ring-8 ring-primary-500/5 transition-all">
-                    <button className="text-slate-300 hover:text-slate-900 transition-colors">
-                        <Upload size={24} />
+                <form
+                    onSubmit={handleChatSubmit}
+                    className="bg-white rounded-2xl p-2 pl-6 border border-slate-100 shadow-xl flex items-center gap-4 group focus-within:ring-4 ring-slate-100 transition-all"
+                >
+                    <button type="button" className="text-slate-300 hover:text-slate-900 transition-colors">
+                        <Upload size={20} />
                     </button>
                     <input
                         type="text"
                         placeholder={t('askAnything')}
-                        className="flex-1 bg-transparent border-none outline-none font-bold text-sm text-slate-900 placeholder:text-slate-300"
+                        className="flex-1 bg-transparent border-none outline-none font-medium text-sm text-slate-900 placeholder:text-slate-300"
+                        value={chatInput}
+                        onChange={(e) => setChatInput(e.target.value)}
                     />
 
-                    <div className="flex items-center gap-3">
-                        <button className="p-3 text-slate-300 hover:text-primary-600 transition-colors">
-                            <Bot size={24} />
+                    <div className="flex items-center gap-2">
+                        <button type="button" className="p-2 text-slate-300 hover:text-primary-600 transition-colors">
+                            <Bot size={20} />
                         </button>
-                        <button className="bg-slate-900 text-white p-4 rounded-full shadow-lg hover:bg-primary-600 transition-all active:scale-90">
-                            <Send size={24} />
+                        <button
+                            type="submit"
+                            className="bg-slate-900 text-white p-3 rounded-xl shadow-lg hover:bg-slate-800 transition-all active:scale-95"
+                        >
+                            <Send size={20} />
                         </button>
                     </div>
-                </div>
+                </form>
 
-                <div className="flex flex-wrap items-center justify-center gap-3 py-2">
+                <div className="flex flex-wrap items-center justify-center gap-2 py-1">
                     {/* Nixtio Quick Action Pills */}
                     {[
-                        { label: t('deepResearch'), icon: Sparkles },
-                        { label: t('makeImage'), icon: FileText },
-                        { label: t('search'), icon: Bot },
-                        { label: t('createMusic'), icon: Zap }
-                    ].map(({ label, icon: Icon }, i) => (
-                        <button key={i} className="px-6 py-3 bg-slate-900 text-white rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-2 hover:bg-primary-600 transition-all shadow-md">
-                            <Icon size={14} />
+                        { label: t('deepResearch'), icon: Sparkles, prompt: 'Perform a deep research on: ' },
+                        { label: t('makeImage'), icon: FileText, prompt: 'Generate an image for: ' },
+                        { label: t('search'), icon: Bot, prompt: 'Search for: ' },
+                        { label: t('createMusic'), icon: Zap, prompt: 'Create music about: ' }
+                    ].map(({ label, icon: Icon, prompt }, i) => (
+                        <button
+                            key={i}
+                            onClick={() => handleChatSubmit(null, prompt + (chatInput || 'latest trends'))}
+                            className="px-5 py-2.5 bg-slate-900 text-white rounded-full text-[9px] font-black uppercase tracking-widest flex items-center gap-2 hover:bg-slate-800 transition-all shadow-md"
+                        >
+                            <Icon size={12} />
                             {label}
                         </button>
                     ))}
@@ -215,7 +235,7 @@ const Dashboard = () => {
                         notes.slice(0, 3).map((note, index) => (
                             <div
                                 key={note._id}
-                                className="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm hover:shadow-xl transition-all group flex flex-col justify-between"
+                                className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm hover:shadow-lg transition-all group flex flex-col justify-between"
                             >
                                 <div className="flex items-center gap-4 mb-6">
                                     <div className="bg-primary-50 p-3 rounded-xl text-primary-600 group-hover:scale-110 transition-transform">

@@ -5,7 +5,7 @@ const openai = new OpenAI({
     baseURL: "https://api.groq.com/openai/v1",
 });
 
-const SYSTEM_PROMPT = "You are the 'Lanka AI Campus Assistant', a sophisticated tutor for Sri Lankan University/Campus students. Provide advanced academic insights, critical analysis, and technical explanations suitable for degree-level study. While maintaining a professional tone, stay friendly and include Sinhala terms for difficult concepts when helpful for local context.";
+const SYSTEM_PROMPT = "You are the 'Lanka AI Campus Assistant', a sophisticated tutor for Sri Lankan University/Campus students. Provide advanced academic insights, critical analysis, and technical explanations suitable for degree-level study. Maintain a professional yet friendly and supportive tone.";
 
 
 exports.generateSummary = async (content) => {
@@ -22,64 +22,10 @@ exports.generateSummary = async (content) => {
     return response.choices[0].message.content;
 };
 
-exports.generateQuiz = async (content, count = 5) => {
-    const response = await openai.chat.completions.create({
-        model: "llama-3.3-70b-versatile",
-        messages: [
-            {
-                role: "system",
-                content: `${SYSTEM_PROMPT} Generate a quiz based ONLY on the provided document content. 
-                Include a mix of: 
-                1. Multiple Choice Questions (MCQ) - with 4 options.
-                2. True/False Questions.
-                3. Short Answer Questions.
-                
-                Return the response strictly as a JSON object in this format:
-                {
-                  "questions": [
-                    {
-                      "type": "mcq",
-                      "question": "question text",
-                      "options": ["option1", "option2", "option3", "option4"],
-                      "answer": "correct option text"
-                    },
-                    {
-                      "type": "true_false",
-                      "question": "statement text",
-                      "answer": "True or False"
-                    },
-                    {
-                      "type": "short_answer",
-                      "question": "question text",
-                      "answer": "brief correct answer"
-                    }
-                  ]
-                }`
-            },
-            { role: "user", content: `Generate a quiz with exactly ${count} questions from this document: \n\n${content}` }
-        ],
-        response_format: { type: "json_object" }
-    });
-
-    try {
-        const result = JSON.parse(response.choices[0].message.content);
-        if (!result.questions || !Array.isArray(result.questions)) {
-            throw new Error("Invalid quiz structure returned by AI");
-        }
-        return result;
-    } catch (e) {
-        console.error("Quiz Generation Error:", e.message);
-        console.error("Raw AI Response:", response.choices[0].message.content);
-        throw new Error("AI failed to generate a valid quiz format. Please try again.");
-    }
-};
-
 
 exports.chatTutor = async (history, message, documentContent) => {
-    const messages = [
-        {
-            role: "system",
-            content: `${SYSTEM_PROMPT} 
+    const systemContent = documentContent
+        ? `${SYSTEM_PROMPT} 
             IMPORTANT: You are helping the student study from a specific document. 
             The document content is provided below. 
             Answer the student's questions ONLY using the information in this document. 
@@ -87,6 +33,12 @@ exports.chatTutor = async (history, message, documentContent) => {
             
             DOCUMENT CONTENT:
             ${documentContent}`
+        : SYSTEM_PROMPT;
+
+    const messages = [
+        {
+            role: "system",
+            content: systemContent
         },
         ...history,
         { role: "user", content: message }
@@ -110,52 +62,115 @@ exports.generateNotesTopic = async (topic) => {
     return response.choices[0].message.content;
 };
 
-exports.generateQuizTopic = async (subject, topic, count) => {
-    const response = await openai.chat.completions.create({
-        model: "llama-3.1-8b-instant",
-        messages: [
-            {
-                role: "system",
-                content: `${SYSTEM_PROMPT} You are a quiz generator. Return strictly valid JSON using double quotes for all keys and string values.`
-            },
-            {
-                role: "user",
-                content: `Generate ${count} multiple choice questions for the subject "${subject}" on the topic "${topic}". 
-                
-                Format the response exactly like this JSON structure:
-                { 
-                  "questions": [ 
-                    { 
-                      "question": "question text", 
-                      "options": ["option1", "option2", "option3", "option4"], 
-                      "answer": "correct option text" 
-                    } 
-                  ] 
-                }`
-            }
-        ],
-        response_format: { type: "json_object" }
-    });
-    try {
-        const result = JSON.parse(response.choices[0].message.content);
-        if (!result.questions || !Array.isArray(result.questions)) {
-            throw new Error("Invalid quiz structure");
-        }
-        return result;
-    } catch (e) {
-        console.error("Topic Quiz Generation Error:", e.message);
-        throw new Error("AI failed to generate a valid quiz. Please try a more specific topic.");
+exports.processWritingTask = async (taskType, content) => {
+    let systemPromptText = "";
+
+    switch (taskType) {
+        case 'ai-detector':
+            systemPromptText = "You are an AI detection system. Analyze the text and provide a result in this EXACT format:\nAI PERCENTAGE: [X]%\nANALYSIS: [Brief analysis of markers]\n\nBe very critical. If it sounds like Llama, GPT, or Claude, give a high percentage.";
+            break;
+        case 'humanize':
+            systemPromptText = "You are a professional editor. Rewrite the following AI-generated text to sound more natural and human-like. Use varied sentence structures and a warm tone.";
+            break;
+        case 'grammar':
+            systemPromptText = "You are a precise grammar checker. Return the result in this EXACT format:\nCORRECTED TEXT: [The full corrected text]\n\nCHANGES:\n- [Original Word/Phrase] -> [Corrected Word/Phrase]: [Brief Reason]";
+            break;
+        case 'improve':
+            systemPromptText = "You are an expert writing coach. Enhance the vocabulary and flow of the text while maintaining the original message.";
+            break;
+        case 'translate':
+            systemPromptText = "You are a professional translator specializing in English and Sinhala. Detect the source language. If it is English, translate it to clear, natural Sinhala. If it is Sinhala, translate it to professional, fluent English. Return ONLY the translated text.";
+            break;
+        default:
+            throw new Error('Invalid task type');
     }
-};
 
-
-exports.generateStudyPlanTopic = async (examDate, subjects) => {
     const response = await openai.chat.completions.create({
-        model: "llama-3.1-8b-instant",
+        model: "llama-3.3-70b-versatile",
         messages: [
-            { role: "system", content: `${SYSTEM_PROMPT} Create a daily study plan leading up to the exam date: ${examDate}. The student is studying these subjects: ${subjects.join(', ')}. Break it down into daily tasks.` },
+            { role: "system", content: `${SYSTEM_PROMPT} ${systemPromptText}` },
+            { role: "user", content: content }
         ],
     });
     return response.choices[0].message.content;
 };
+
+exports.generateQuizTopic = async (subject, topic, count) => {
+    const response = await openai.chat.completions.create({
+        model: "llama-3.3-70b-versatile",
+        messages: [
+            {
+                role: "system",
+                content: `${SYSTEM_PROMPT} Generate a multiple-choice quiz about the following topic. 
+                Return the response in this EXACT JSON format:
+                {
+                    "questions": [
+                        {
+                            "question": "Question text here?",
+                            "options": ["Option A", "Option B", "Option C", "Option D"],
+                            "correctAnswer": 0
+                        }
+                    ]
+                }
+                The 'correctAnswer' should be the index (0-3) of the correct option in the 'options' array.`
+            },
+            { role: "user", content: `Subject: ${subject}, Topic: ${topic}, Number of questions: ${count}` }
+        ],
+        response_format: { type: "json_object" }
+    });
+    return JSON.parse(response.choices[0].message.content).questions;
+};
+
+exports.generateStudyPlanTopic = async (examDate, subjects) => {
+    const response = await openai.chat.completions.create({
+        model: "llama-3.3-70b-versatile",
+        messages: [
+            {
+                role: "system",
+                content: `${SYSTEM_PROMPT} Create a professional and structured study plan for a student. 
+                Return the response in this EXACT JSON format:
+                {
+                    "plan": [
+                        {
+                            "week": "Week 1",
+                            "focus": "Focus of the week",
+                            "tasks": ["Task 1", "Task 2"]
+                        }
+                    ]
+                }`
+            },
+            { role: "user", content: `Exam Date: ${examDate}, Subjects: ${subjects}` }
+        ],
+        response_format: { type: "json_object" }
+    });
+    return JSON.parse(response.choices[0].message.content).plan;
+};
+
+exports.generateQuizDocument = async (content) => {
+    const response = await openai.chat.completions.create({
+        model: "llama-3.3-70b-versatile",
+        messages: [
+            {
+                role: "system",
+                content: `${SYSTEM_PROMPT} Generate a comprehensive quiz based on the provided document content. 
+                Include a mix of 5 questions (MCQs).
+                Return the response in this EXACT JSON format:
+                {
+                    "questions": [
+                        {
+                            "question": "Question text here?",
+                            "options": ["Option A", "Option B", "Option C", "Option D"],
+                            "answer": "Exact correct option text",
+                            "type": "mcq"
+                        }
+                    ]
+                }`
+            },
+            { role: "user", content: content }
+        ],
+        response_format: { type: "json_object" }
+    });
+    return JSON.parse(response.choices[0].message.content);
+};
+
 

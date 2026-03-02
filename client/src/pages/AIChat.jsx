@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { aiService } from '../services/api';
 import { Send, Bot, User, Trash2, Sparkles, AlertCircle } from 'lucide-react';
 
@@ -9,15 +10,15 @@ const MessageBubble = ({ message, role }) => {
         <div className={`flex w-full mb-6 ${isAi ? 'justify-start' : 'justify-end'} animate-fade-in`}>
             <div className={`flex max-w-[85%] ${isAi ? 'flex-row' : 'flex-row-reverse'} gap-3`}>
                 <div className={`w-10 h-10 rounded-2xl flex-shrink-0 flex items-center justify-center shadow-sm border ${isAi
-                        ? 'bg-primary-600 text-white border-primary-500'
-                        : 'bg-white text-slate-600 border-slate-100'
+                    ? 'bg-primary-600 text-white border-primary-500'
+                    : 'bg-white text-slate-600 border-slate-100'
                     }`}>
                     {isAi ? <Bot size={20} /> : <User size={20} />}
                 </div>
 
                 <div className={`p-4 rounded-3xl ${isAi
-                        ? 'bg-white border border-slate-100 text-slate-800 shadow-sm'
-                        : 'bg-slate-900 text-white shadow-xl shadow-slate-200'
+                    ? 'bg-white border border-slate-100 text-slate-800 shadow-sm'
+                    : 'bg-slate-900 text-white shadow-xl shadow-slate-200'
                     }`}>
                     <div className="text-sm leading-relaxed whitespace-pre-wrap">
                         {message}
@@ -29,8 +30,11 @@ const MessageBubble = ({ message, role }) => {
 };
 
 const AIChat = () => {
+    const [searchParams, setSearchParams] = useSearchParams();
+    const initialQuery = searchParams.get('q');
+
     const [messages, setMessages] = useState([
-        { role: 'assistant', content: 'Hi there! 👋 I\'m your Lanka AI Study Assistant. What subject are we focusing on today? I can help with ICT, Science, Maths, English, and more in both English and Sinhala!' }
+        { role: 'assistant', content: 'Hi there! 👋 I\'m your AI Chatbot. How can I help you with your studies or writing today?' }
     ]);
     const [input, setInput] = useState('');
     const [loading, setLoading] = useState(false);
@@ -45,20 +49,33 @@ const AIChat = () => {
         scrollToBottom();
     }, [messages]);
 
-    const handleSend = async (e) => {
-        e.preventDefault();
-        if (!input.trim() || loading) return;
+    // Handle initial query from dashboard
+    useEffect(() => {
+        if (initialQuery && messages.length === 1) {
+            handleSend(null, initialQuery);
+            // Clear the param so it doesn't re-trigger on refresh
+            setSearchParams({});
+        }
+    }, [initialQuery]);
 
-        const userMsg = { role: 'user', content: input };
+    const handleSend = async (e, directPrompt = null) => {
+        if (e) e.preventDefault();
+        const promptText = directPrompt || input;
+        if (!promptText.trim() || loading) return;
+
+        const userMsg = { role: 'user', content: promptText };
         setMessages(prev => [...prev, userMsg]);
-        setInput('');
+        if (!directPrompt) setInput('');
         setLoading(true);
         setError(null);
 
         try {
-            // Only send history (excluding the first greeting)
-            const history = messages.slice(1).map(({ role, content }) => ({ role, content }));
-            const data = await aiService.chat(history, input);
+            // Get history (excluding the first greeting)
+            // The `messages` state here is the state *before* the `setMessages` call above.
+            // So, `messages.slice(1)` correctly represents the history *before* the current user message.
+            const historyForApi = messages.slice(1).map(({ role, content }) => ({ role, content }));
+
+            const data = await aiService.chat(historyForApi, promptText);
             setMessages(prev => [...prev, { role: 'assistant', content: data.response }]);
         } catch (err) {
             console.error('Chat error:', err);
@@ -84,7 +101,7 @@ const AIChat = () => {
                         <Bot size={24} className="text-primary-600" />
                     </div>
                     <div>
-                        <h2 className="font-display font-bold text-slate-900">AI Study Tutor</h2>
+                        <h2 className="font-display font-bold text-slate-900">AI Chatbot</h2>
                         <div className="flex items-center gap-1.5">
                             <div className={`w-2 h-2 rounded-full ${loading ? 'bg-amber-400 animate-pulse' : 'bg-emerald-400'}`}></div>
                             <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
@@ -155,8 +172,8 @@ const AIChat = () => {
                         type="submit"
                         disabled={!input.trim() || loading}
                         className={`p-2.5 rounded-2xl transition-all shadow-lg active:scale-95 ${!input.trim() || loading
-                                ? 'bg-slate-200 text-slate-400'
-                                : 'bg-primary-600 text-white hover:bg-primary-700 shadow-primary-200'
+                            ? 'bg-slate-200 text-slate-400'
+                            : 'bg-primary-600 text-white hover:bg-primary-700 shadow-primary-200'
                             }`}
                     >
                         <Send size={20} />

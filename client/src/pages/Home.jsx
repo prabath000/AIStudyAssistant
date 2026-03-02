@@ -1,15 +1,16 @@
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Sparkles, ArrowRight, BookOpen, Bot, Zap, Calendar } from 'lucide-react';
+import logo from '../assets/logo.png';
 
-const FeatureCard = ({ icon: Icon, title, description, color }) => (
-    <div className="bg-white p-8 rounded-3xl border border-slate-100 hover:border-primary-100 transition-all duration-300 shadow-sm hover:shadow-xl hover:-translate-y-2 group">
+const FeatureCard = ({ icon: Icon, title, description, color, path }) => (
+    <Link to={path || '/'} className="bg-white p-8 rounded-3xl border border-slate-100 hover:border-primary-100 transition-all duration-300 shadow-sm hover:shadow-xl hover:-translate-y-2 group block">
         <div className={`${color} p-4 rounded-2xl w-fit mb-6 group-hover:scale-110 transition-transform`}>
             <Icon size={32} />
         </div>
         <h3 className="text-xl font-display font-bold text-slate-900 mb-3">{title}</h3>
         <p className="text-slate-500 text-sm leading-relaxed">{description}</p>
-    </div>
+    </Link>
 );
 
 const Home = () => {
@@ -19,15 +20,9 @@ const Home = () => {
         <div className="min-h-screen bg-white font-sans text-slate-900 overflow-x-hidden">
             {/* Navigation */}
             <nav className="max-w-7xl mx-auto px-6 py-8 flex justify-between items-center relative z-10">
-                <div className="flex items-center gap-3">
-                    <div className="bg-primary-600 text-white p-2 rounded-xl shadow-lg rotate-3">
-                        <Sparkles size={24} />
-                    </div>
-                    <div className="flex flex-col">
-                        <span className="font-display font-bold text-xl leading-none">Lanka AI</span>
-                        <span className="text-[10px] uppercase tracking-widest font-bold text-slate-400">Study Assistant</span>
-                    </div>
-                </div>
+                <Link to="/" className="flex items-center gap-3">
+                    <img src={logo} alt="Lanka AI Logo" className="h-10 w-auto object-contain" />
+                </Link>
 
                 <div className="flex items-center gap-4">
                     {user ? (
@@ -61,11 +56,11 @@ const Home = () => {
                     </h1>
 
                     <p className="text-xl text-slate-500 mb-12 max-w-2xl mx-auto leading-relaxed animate-slide-up" style={{ animationDelay: '0.1s' }}>
-                        Transform the way you study. Generate notes, quizzes, and personalized study plans in seconds. Tailored for Grade 6-11, O/L, and A/L students.
+                        Transform the way you study. Generate notes, quizzes, and personalized study plans in seconds.
                     </p>
 
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-slide-up" style={{ animationDelay: '0.2s' }}>
-                        <Link to="/register" className="w-full sm:w-auto bg-slate-900 text-white px-10 py-5 rounded-3xl text-lg font-bold hover:bg-slate-800 transition-all flex items-center justify-center gap-3 shadow-2xl active:scale-95 group">
+                        <Link to={user ? "/dashboard" : "/register"} className="w-full sm:w-auto bg-slate-900 text-white px-10 py-5 rounded-3xl text-lg font-bold hover:bg-slate-800 transition-all flex items-center justify-center gap-3 shadow-2xl active:scale-95 group">
                             Get Started for Free
                             <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
                         </Link>
@@ -87,27 +82,24 @@ const Home = () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                         <FeatureCard
                             icon={Bot}
-                            title="AI Chat Tutor"
+                            title="AI Chatbot"
                             description="Ask anything in English or Sinhala. Get instant, simple explanations for tough concepts."
                             color="bg-purple-100 text-primary-600"
+                            path="/chat"
                         />
                         <FeatureCard
                             icon={BookOpen}
-                            title="Notes Gen"
+                            title="Study Hub"
                             description="Enter any lesson topic and get summaries, key points, and exam-ready notes instantly."
                             color="bg-blue-100 text-blue-600"
+                            path="/notes"
                         />
                         <FeatureCard
                             icon={Zap}
-                            title="Quiz Gen"
-                            description="Test your knowledge with AI-generated MCQs tailored to your specific subject and topic."
+                            title="Writing Tools"
+                            description="Elevate your academic voice with AI-powered grammar checking, coaching, and humanizing tools."
                             color="bg-amber-100 text-amber-600"
-                        />
-                        <FeatureCard
-                            icon={Calendar}
-                            title="Study Planner"
-                            description="Tell us your exam date and subjects. We'll build a personalized daily plan to keep you on track."
-                            color="bg-emerald-100 text-emerald-600"
+                            path="/writing-tools"
                         />
                     </div>
                 </div>
@@ -116,10 +108,19 @@ const Home = () => {
             {/* Footer */}
             <footer className="py-12 px-6 border-t border-slate-100 text-center">
                 <div className="flex items-center justify-center gap-2 mb-4">
-                    <Sparkles size={18} className="text-primary-600" />
-                    <span className="font-display font-bold text-slate-900">Lanka AI Study Assistant</span>
+                    <img src={logo} alt="Lanka AI Logo" className="h-8 w-auto object-contain" />
                 </div>
-                <p className="text-slate-400 text-sm">© 2026 Designed for Sri Lankan Students. Powered by Advanced AI.</p>
+                <p className="text-slate-400 text-sm">
+                    © 2026 Designed for Sri Lankan Students. Powered by{' '}
+                    <a
+                        href="https://prabath000.github.io/Prabaththilina/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="font-bold text-primary-600 hover:text-primary-700 transition-colors"
+                    >
+                        Prabath Thilina
+                    </a>
+                </p>
             </footer>
         </div>
     );
