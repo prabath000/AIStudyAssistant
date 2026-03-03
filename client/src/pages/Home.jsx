@@ -31,9 +31,11 @@ const Home = () => {
                         </Link>
                     ) : (
                         <>
-                            <Link to="/login" className="text-slate-600 font-semibold hover:text-primary-600 transition-colors">Login</Link>
-                            <Link to="/register" className="bg-primary-600 text-white px-8 py-3 rounded-full text-sm font-bold hover:bg-primary-700 transition-all shadow-lg shadow-primary-200 active:scale-95">
-                                Start Learning
+                            <Link to="/login" className="text-slate-600 font-bold hover:text-slate-900 transition-colors text-sm px-4">
+                                Log in
+                            </Link>
+                            <Link to="/register" className="bg-slate-900 text-white px-8 py-3 rounded-full text-sm font-bold hover:bg-slate-800 transition-all shadow-lg active:scale-95">
+                                Sign up
                             </Link>
                         </>
                     )}
@@ -60,7 +62,7 @@ const Home = () => {
                     </p>
 
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-slide-up" style={{ animationDelay: '0.2s' }}>
-                        <Link to={user ? "/dashboard" : "/register"} className="w-full sm:w-auto bg-slate-900 text-white px-10 py-5 rounded-3xl text-lg font-bold hover:bg-slate-800 transition-all flex items-center justify-center gap-3 shadow-2xl active:scale-95 group">
+                        <Link to="/dashboard" className="w-full sm:w-auto bg-slate-900 text-white px-10 py-5 rounded-3xl text-lg font-bold hover:bg-slate-800 transition-all flex items-center justify-center gap-3 shadow-2xl active:scale-95 group">
                             Get Started for Free
                             <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
                         </Link>

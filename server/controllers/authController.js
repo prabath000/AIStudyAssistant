@@ -6,6 +6,8 @@ const generateToken = (id) => {
 };
 
 exports.register = async (req, res) => {
+    console.log('--- REGISTER REQUEST RECEIVED ---');
+    console.log('Body:', req.body);
     const { username, email, password } = req.body;
     try {
         const userExists = await User.findOne({ $or: [{ email }, { username }] });
@@ -38,6 +40,8 @@ exports.register = async (req, res) => {
 
 
 exports.login = async (req, res) => {
+    console.log('--- LOGIN REQUEST RECEIVED ---');
+    console.log('Email:', req.body.email);
     const { email, password } = req.body;
     try {
         const user = await User.findOne({ email });

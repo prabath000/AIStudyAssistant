@@ -1,0 +1,11 @@
+{
+  "appId": "com.aistudyassistant.app",
+  "appName": "AI Study Assistant",
+  "webDir": "dist",
+  "server": {
+    "cleartext": true,
+    "allowNavigation": [
+      "192.168.8.180.nip.io"
+    ]
+  }
+}

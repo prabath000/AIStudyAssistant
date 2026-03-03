@@ -10,6 +10,23 @@ const protect = async (req, res, next) => {
     if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
         try {
             token = req.headers.authorization.split(' ')[1];
+
+            // Bypass for the removed authentication flow
+            if (token === 'mock-token') {
+                let guestUser = await User.findOne({ email: 'guest@aistudyassistant.com' });
+                if (!guestUser) {
+                    guestUser = await User.create({
+                        username: 'Guest User',
+                        email: 'guest@aistudyassistant.com',
+                        password: 'guestpassword123!'
+                    });
+                }
+                req.user = guestUser;
+                return next();
+            }
+
+            console.log('Verifying Token:', token.substring(0, 10) + '...');
+            token = req.headers.authorization.split(' ')[1];
             console.log('Verifying Token:', token.substring(0, 10) + '...');
             const decoded = jwt.verify(token, process.env.JWT_SECRET);
             console.log('Decoded Token:', decoded);

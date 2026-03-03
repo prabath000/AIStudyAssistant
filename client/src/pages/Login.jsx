@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { SERVER_BASE_URL } from '../services/api';
 import { Eye, EyeOff, ArrowRight } from 'lucide-react';
 import logo from '../assets/logo.png';
 
@@ -21,7 +22,9 @@ const Login = () => {
             await login(email, password);
             navigate('/dashboard');
         } catch (err) {
-            setError(err.response?.data?.message || 'Invalid credentials. Please try again.');
+            console.error('Login error detail:', err);
+            const msg = err.response?.data?.message || err.message || 'Login failed. Check network.';
+            setError(msg);
         } finally {
             setLoading(false);
         }
@@ -43,10 +46,9 @@ const Login = () => {
                         <p className="text-slate-400 text-sm font-medium">Please enter your details to sign in</p>
                     </div>
 
-                    {/* Social Login: Single Google Button at Top */}
                     <div className="flex justify-center mb-10">
                         <button
-                            onClick={() => window.location.href = 'http://localhost:5000/api/auth/google'}
+                            onClick={() => window.location.href = `${SERVER_BASE_URL}/api/auth/google`}
                             className="w-14 h-14 rounded-full border border-slate-100 flex items-center justify-center hover:bg-slate-50 transition-all shadow-sm group"
                         >
                             <svg className="w-5 h-5 group-hover:scale-110 transition-transform" viewBox="0 0 24 24">

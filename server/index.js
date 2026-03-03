@@ -13,19 +13,7 @@ const app = express();
 
 // Middleware
 app.use(cors({
-    origin: function (origin, callback) {
-        // Allow requests with no origin (like mobile apps, curl, Postman)
-        if (!origin) return callback(null, true);
-        // Allow any localhost origin in development
-        if (origin.startsWith('http://localhost') || origin.startsWith('http://127.0.0.1')) {
-            return callback(null, true);
-        }
-        // Allow the configured CLIENT_URL in production
-        if (origin === process.env.CLIENT_URL) {
-            return callback(null, true);
-        }
-        callback(new Error('Not allowed by CORS'));
-    },
+    origin: true, // Allow all origins for debugging mobile connection
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
@@ -34,9 +22,15 @@ app.use(express.json());
 app.use('/uploads', express.static('uploads'));
 app.use(passport.initialize());
 
+const fs = require('fs');
+const path = require('path');
+const logFile = path.join(__dirname, 'debug.log');
+
 // Request Logger
 app.use((req, res, next) => {
-    console.log(`${new Date().toLocaleTimeString()} - ${req.method} ${req.url}`);
+    const logMsg = `${new Date().toLocaleTimeString()} - ${req.method} ${req.url}\n`;
+    console.log(logMsg.trim());
+    fs.appendFileSync(logFile, logMsg);
     next();
 });
 
@@ -51,7 +45,7 @@ if (!mongoURI || mongoURI.includes('<username>') || mongoURI.includes('<password
 }
 
 mongoose.connect(mongoURI, {
-    serverSelectionTimeoutMS: 5000
+    serverSelectionTimeoutMS: 30000
 })
     .then(() => {
         console.log('MongoDB: Initial connection successful');
@@ -124,6 +118,6 @@ app.use((err, req, res, next) => {
 
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`Server running on port ${PORT} (Accessible on network)`);
 });

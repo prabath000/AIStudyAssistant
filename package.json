@@ -9,7 +9,9 @@
     "install-all": "npm install && cd server && npm install && cd ../client && npm install"
   },
   "devDependencies": {
-    "concurrently": "^9.2.1"
+    "@types/react": "~19.2.10",
+    "concurrently": "^9.2.1",
+    "typescript": "~5.9.2"
   },
   "dependencies": {
     "mongodb": "^7.1.0"

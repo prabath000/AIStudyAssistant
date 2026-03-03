@@ -58,7 +58,7 @@ const Layout = ({ children }) => {
 
     const handleLogout = () => {
         logout();
-        navigate('/login');
+        navigate('/');
     };
 
     const menuItems = [
@@ -184,7 +184,7 @@ const Layout = ({ children }) => {
 
                         {!collapsed && (
                             <div className="flex-1 min-w-0">
-                                <p className="text-xs font-bold text-slate-900 truncate">{user?.username || 'Prabath Thilina'}</p>
+                                <p className="text-xs font-bold text-slate-900 truncate">{user?.username}</p>
                                 <p className="text-[10px] text-slate-400 font-medium truncate uppercase tracking-wider">Student Learner</p>
                             </div>
                         )}
@@ -192,10 +192,10 @@ const Layout = ({ children }) => {
                         {!collapsed && (
                             <button
                                 onClick={handleLogout}
-                                className="text-slate-300 hover:text-slate-900 transition-colors ml-auto"
+                                className="text-slate-300 hover:text-red-500 transition-colors ml-auto"
                                 title={t('logout')}
                             >
-                                <ChevronRight size={16} className="rotate-90" />
+                                <LogOut size={16} />
                             </button>
                         )}
                     </div>

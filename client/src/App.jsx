@@ -18,10 +18,17 @@ import QuizGenerator from './pages/QuizGenerator';
 import StudyPlanner from './pages/StudyPlanner';
 
 const PrivateRoute = ({ children }) => {
-
   const { user, loading } = useAuth();
-  if (loading) return <div>Loading...</div>;
-  return user ? <Layout>{children}</Layout> : <Navigate to="/login" />;
+
+  if (loading) {
+    return <div className="flex items-center justify-center h-screen">Loading...</div>;
+  }
+
+  if (!user) {
+    return <Navigate to="/login" />;
+  }
+
+  return <Layout>{children}</Layout>;
 };
 
 function App() {
@@ -84,6 +91,8 @@ function App() {
                 <StudyPlanner />
               </PrivateRoute>
             } />
+            {/* Redirect all other paths to home */}
+            <Route path="*" element={<Navigate to="/" />} />
           </Routes>
         </AuthProvider>
       </ThemeProvider>

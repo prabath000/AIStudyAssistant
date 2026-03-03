@@ -1,29 +1,13 @@
-const OpenAI = require('openai');
 require('dotenv').config();
+const aiService = require('./services/aiService');
 
-const openai = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY,
-    baseURL: "https://api.groq.com/openai/v1",
-});
-
-async function test() {
+async function run() {
     try {
-        console.log("Testing Groq API...");
-        const response = await openai.chat.completions.create({
-            model: "llama-3.3-70b-versatile",
-            messages: [
-                { role: "user", content: "Hello, are you working?" }
-            ],
-        });
-        console.log("Response:", response.choices[0].message.content);
-        console.log("SUCCESS");
-    } catch (error) {
-        console.error("FAILURE:", error.message);
-        if (error.response) {
-            console.error("Status:", error.response.status);
-            console.error("Data:", error.response.data);
-        }
+        console.log("Testing AI Service...");
+        const res = await aiService.chatTutor([], "Hello, what are you?", "");
+        console.log("SUCCESS:", res);
+    } catch (e) {
+        console.error("ERROR:", e.message);
     }
 }
-
-test();
+run();
