@@ -15,7 +15,8 @@ exports.uploadNote = async (req, res) => {
             console.log(`NoteController: Received file "${req.file.originalname}" (${req.file.mimetype})`);
 
             try {
-                const dataBuffer = fs.readFileSync(req.file.path);
+                // Use buffer directly (memory storage) — no file path
+                const dataBuffer = req.file.buffer;
 
                 if (req.file.mimetype === 'application/pdf') {
                     console.log('NoteController: Parsing PDF content...');
@@ -32,13 +33,8 @@ exports.uploadNote = async (req, res) => {
                 }
             } catch (err) {
                 console.error('NoteController: Extraction error:', err.message);
-                // Ensure file is deleted even if parsing fails
-                if (fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path);
                 return res.status(400).json({ message: err.message });
             }
-
-            // Cleanup file after successful reading content
-            if (fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path);
         } else {
             console.log('NoteController: No file received, using body content.');
             content = req.body.content;

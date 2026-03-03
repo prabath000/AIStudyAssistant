@@ -4,7 +4,7 @@ const multer = require('multer');
 const { uploadNote, getNotes, deleteNote } = require('../controllers/noteController');
 const { protect } = require('../middleware/auth');
 
-const upload = multer({ dest: 'uploads/' });
+const upload = multer({ storage: multer.memoryStorage() });
 
 router.use(protect);
 router.post('/upload', upload.single('file'), uploadNote);

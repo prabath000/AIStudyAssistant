@@ -118,6 +118,12 @@ app.use((err, req, res, next) => {
 
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, '0.0.0.0', () => {
-    console.log(`Server running on port ${PORT} (Accessible on network)`);
-});
+
+// Only start the HTTP server when running locally (not on Vercel)
+if (process.env.VERCEL !== '1') {
+    app.listen(PORT, '0.0.0.0', () => {
+        console.log(`Server running on port ${PORT} (Accessible on network)`);
+    });
+}
+
+module.exports = app;
