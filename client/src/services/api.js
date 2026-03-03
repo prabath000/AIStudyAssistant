@@ -1,6 +1,14 @@
 import axios from 'axios';
 
-export const SERVER_BASE_URL = import.meta.env.VITE_API_URL || 'http://192.168.8.180.nip.io:5000';
+const _getServerBaseURL = () => {
+    if (import.meta.env.VITE_API_URL) return import.meta.env.VITE_API_URL;
+    if (typeof window === 'undefined') return '';
+    // Vite dev proxy forwards /api to localhost:5000
+    // Vercel routes /api to server/index.js
+    // So always use same origin — works in both environments
+    return window.location.origin;
+};
+export const SERVER_BASE_URL = _getServerBaseURL();
 export const API_URL = `${SERVER_BASE_URL}/api`;
 
 const api = axios.create({

@@ -12,5 +12,12 @@ export default defineConfig({
     host: true,       // Listen on all network interfaces (LAN, nip.io)
     port: 5173,
     allowedHosts: ['192.168.8.180.nip.io', 'localhost', '192.168.8.180'],
+    proxy: {
+      '/api': {
+        target: 'http://localhost:5000',
+        changeOrigin: true,
+      }
+    }
   }
 })
+

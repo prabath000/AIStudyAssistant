@@ -65,7 +65,7 @@ const Dashboard = () => {
         const fetchNotes = async () => {
             try {
                 const data = await noteService.getNotes();
-                setNotes(data);
+                setNotes(Array.isArray(data) ? data : []);
             } catch (err) {
                 console.error('Error fetching documents:', err);
             } finally {

@@ -79,7 +79,8 @@ const AIChat = () => {
             setMessages(prev => [...prev, { role: 'assistant', content: data.response }]);
         } catch (err) {
             console.error('Chat error:', err);
-            setError('Oops! I ran into an issue. Please try again.');
+            const msg = err.response?.data?.message || err.message || 'Oops! I ran into an issue. Please try again.';
+            setError(msg);
         } finally {
             setLoading(false);
         }
